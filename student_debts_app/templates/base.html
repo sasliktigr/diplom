@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#e4262c">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='emblem.png') }}">
+    <title>{% block title %}EduControl Pro{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+{% if current_user %}
+<header class="topbar">
+    <button
+        type="button"
+        class="topbar-burger"
+        id="nav-toggle"
+        aria-label="Открыть меню"
+        aria-controls="sidebar"
+        aria-expanded="false"
+    >
+        <svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+
+    <div class="topbar-brand">
+        <span class="topbar-logo">{% include "_logo.html" %}</span>
+        <strong>EduControl Pro</strong>
+    </div>
+
+    <div class="topbar-avatar">{{ current_user.display_name[:1]|upper }}</div>
+</header>
+
+<div class="nav-overlay" id="nav-overlay" hidden></div>
+
+<div class="shell">
+
+    <aside class="sidebar" id="sidebar">
+        <button
+            type="button"
+            class="sidebar-close"
+            id="nav-close"
+            aria-label="Закрыть меню"
+        >
+            <svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+
+        <div class="brand">
+            <div class="logo">{% include "_logo.html" %}</div>
+
+            <div>
+                <h1>EduControl Pro</h1>
+
+                <small>
+                    {% if current_user.role == 'teacher' %}
+                        Teacher Admin
+                    {% else %}
+                        Student Cabinet
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+
+        <div class="user-card">
+            <div class="user-avatar">
+                {{ current_user.display_name[:1]|upper }}
+            </div>
+
+            <div class="user-card-text">
+                <strong>{{ current_user.display_name }}</strong>
+
+                <span>
+                    {% if current_user.role == 'teacher' %}
+                        Преподаватель · Администратор
+                    {% else %}
+                        Студент
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="nav-label">
+            Навигация
+        </div>
+
+        <nav class="nav">
+
+        {% if current_user.role == 'teacher' %}
+            <a
+                class="{% if active_page == 'dashboard' %}active{% endif %}"
+                href="{{ url_for('dashboard') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
+                Обзор
+            </a>
+
+            <a
+                class="{% if active_page == 'debts' %}active{% endif %}"
+                href="{{ url_for('debts_page') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 12h6M10 16h6"/></svg>
+                Задолженности
+            </a>
+
+            <a
+                class="{% if active_page == 'students' %}active{% endif %}"
+                href="{{ url_for('students_page') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+                Студенты
+            </a>
+
+            <a
+                class="{% if active_page == 'groups' %}active{% endif %}"
+                href="{{ url_for('groups_page') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.3c2 .8 3.5 2.6 3.5 5.7"/></svg>
+                Группы
+            </a>
+
+            <a
+                class="{% if active_page == 'subjects' %}active{% endif %}"
+                href="{{ url_for('subjects_page') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H20v14H5.5A1.5 1.5 0 004 19.5z"/><path d="M4 19.5A1.5 1.5 0 005.5 21H20v-3M9 8h7"/></svg>
+                Предметы
+            </a>
+
+            <a
+                class="{% if active_page == 'teachers' %}active{% endif %}"
+                href="{{ url_for('teachers_page') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-4.5"/></svg>
+                Преподаватели
+            </a>
+
+            <a
+                class="{% if active_page == 'accounts' %}active{% endif %}"
+                href="{{ url_for('accounts_page') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg>
+                Аккаунты
+            </a>
+
+        {% else %}
+
+            <a
+                class="{% if active_page == 'my' %}active{% endif %}"
+                href="{{ url_for('my_profile') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H20v14H5.5A1.5 1.5 0 004 19.5z"/><path d="M4 19.5A1.5 1.5 0 005.5 21H20v-3"/><circle cx="12" cy="10" r="2"/></svg>
+                Мой кабинет
+            </a>
+
+            <a
+                class="{% if active_page == 'teachers' %}active{% endif %}"
+                href="{{ url_for('teachers_page') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-4.5"/></svg>
+                Преподаватели
+            </a>
+
+        {% endif %}
+
+            <a
+                class="logout"
+                href="{{ url_for('logout') }}"
+            >
+                <svg class="ico" viewBox="0 0 24 24"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>
+                Выйти
+            </a>
+        </nav>
+
+        <div class="side-card">
+            {% if current_user.role == 'teacher' %}
+                <strong>Режим администратора</strong>
+                <span>
+                    Доступны все студенты, группы,
+                    задолженности и настройки.
+                </span>
+            {% else %}
+                <strong>Личный кабинет</strong>
+                <span>
+                    Вам доступны только ваши
+                    собственные учебные данные.
+                </span>
+            {% endif %}
+        </div>
+    </aside>
+
+    <main class="main">
+
+        {% include "_navsearch.html" %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+{% else %}
+
+    {% block auth_content %}{% endblock %}
+
+{% endif %}
+<script src="{{ url_for('static', filename='mobile.js') }}" defer></script>
+</body>
+</html>

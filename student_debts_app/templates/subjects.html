@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+{% block title %}Предметы — EduControl Pro{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <div class="eyebrow">Subjects</div>
+        <h2>Предметы</h2>
+        <p>
+            Отдельный справочник учебных дисциплин.
+        </p>
+    </div>
+
+    <div class="hero-actions">
+        <form
+            method="POST"
+            action="{{ url_for('clear_subjects') }}"
+            onsubmit="return confirm('Очистить ВЕСЬ список предметов? Связанные задолженности также будут удалены.')"
+        >
+            <button class="btn btn-danger">
+                Очистить список
+            </button>
+        </form>
+    </div>
+</section>
+
+<div class="page-grid">
+    <section class="panel">
+        <div class="panel-head">
+            <h3>Добавить предмет</h3>
+            <p>Добавьте дисциплину в справочник.</p>
+        </div>
+
+        <div class="panel-body">
+            <form method="POST" action="{{ url_for('add_subject') }}">
+                <div class="field">
+                    <label>Название предмета</label>
+                    <input
+                        name="subject_name"
+                        placeholder="Например: Информатика"
+                        required
+                    >
+                </div>
+
+                <button class="btn btn-primary" style="width:100%">
+                    Добавить предмет
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <h3>Список предметов</h3>
+            <p>Количество задолженностей по каждой дисциплине.</p>
+        </div>
+
+        <div class="panel-body">
+            <div class="cards-list">
+                {% for subject in subjects %}
+                    <div class="entity-card">
+                        <div>
+                            <div class="entity-title">
+                                {{ subject.subject_name }}
+                            </div>
+
+                            <div class="entity-meta">
+                                всего долгов: {{ subject.debt_count }} ·
+                                активных:
+                                {{ subject.active_debt_count or 0 }}
+                            </div>
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('delete_subject', subject_id=subject.id) }}"
+                            onsubmit="return confirm('Удалить предмет?')"
+                        >
+                            <button class="mini delete">
+                                Удалить
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="empty">
+                        Предметов пока нет
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

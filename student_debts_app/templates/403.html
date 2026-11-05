@@ -1,0 +1,43 @@
+
+{% extends "base.html" %}
+{% block title %}Нет доступа — EduControl Pro{% endblock %}
+
+{% block content %}
+
+<div class="permission-page">
+
+    <div class="permission-icon">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+    </div>
+
+    <h2>
+        Доступ запрещён
+    </h2>
+
+    <p>
+        Этот раздел доступен только преподавателю.
+    </p>
+
+    {% if current_user.role == 'student' %}
+
+        <a
+            class="btn btn-primary"
+            href="{{ url_for('my_profile') }}"
+        >
+            Вернуться в мой кабинет
+        </a>
+
+    {% else %}
+
+        <a
+            class="btn btn-primary"
+            href="{{ url_for('dashboard') }}"
+        >
+            На главную
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,355 @@
+
+{% extends "base.html" %}
+{% block title %}Регистрация — EduControl Pro{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page">
+
+    {% include "_auth_aside.html" %}
+
+    <div class="auth-main">
+    <div class="auth-card auth-card-wide">
+
+        <div class="auth-brand">
+            <div class="logo auth-logo">
+                {% include "_logo.html" %}
+            </div>
+
+            <div>
+                <h1>Регистрация</h1>
+                <p>
+                    Заполните данные для создания аккаунта
+                </p>
+            </div>
+        </div>
+
+        <form method="POST" novalidate>
+
+            <div class="role-selector">
+
+                <label class="role-card {% if form_data.role == 'student' %}role-selected{% endif %}">
+                    <input
+                        type="radio"
+                        name="role"
+                        value="student"
+                        {% if form_data.role == 'student' %}checked{% endif %}
+                        onchange="toggleRoleFields()"
+                    >
+
+                    <span>
+                        <strong>Студент</strong>
+                        <small>
+                            Видит только свои данные
+                        </small>
+                    </span>
+                </label>
+
+                <label class="role-card {% if form_data.role == 'teacher' %}role-selected{% endif %}">
+                    <input
+                        type="radio"
+                        name="role"
+                        value="teacher"
+                        {% if form_data.role == 'teacher' %}checked{% endif %}
+                        onchange="toggleRoleFields()"
+                    >
+
+                    <span>
+                        <strong>Преподаватель</strong>
+                        <small>
+                            Имеет полный доступ как администратор
+                        </small>
+                    </span>
+                </label>
+
+            </div>
+
+            <div class="grid2">
+
+                <div class="field">
+                    <label>Логин</label>
+
+                    <input
+                        name="username"
+                        value="{{ form_data.username }}"
+                        autocomplete="username"
+                        class="{% if errors.username %}input-error{% endif %}"
+                        placeholder="Например: salim01"
+                    >
+
+                    <div class="field-rule">
+                        3–30 символов. Логин должен быть уникальным.
+                    </div>
+
+                    {% if errors.username %}
+                        <div class="field-error">
+                            {{ errors.username }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <label>Пароль</label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        value="{{ form_data.password }}"
+                        autocomplete="new-password"
+                        class="{% if errors.password %}input-error{% endif %}"
+                        placeholder="Минимум 6 символов"
+                    >
+
+                    <div class="field-rule">
+                        Обязательно. Минимум 6 символов.
+                    </div>
+
+                    {% if errors.password %}
+                        <div class="field-error">
+                            {{ errors.password }}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="field">
+                <label>Повторите пароль</label>
+
+                <input
+                    type="password"
+                    name="password2"
+                    value="{{ form_data.password2 }}"
+                    autocomplete="new-password"
+                    class="{% if errors.password2 %}input-error{% endif %}"
+                    placeholder="Введите тот же пароль ещё раз"
+                >
+
+                <div class="field-rule">
+                    Должен полностью совпадать с паролем выше.
+                </div>
+
+                {% if errors.password2 %}
+                    <div class="field-error">
+                        {{ errors.password2 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div id="student-fields">
+
+                <div class="grid2">
+
+                    <div class="field">
+                        <label>Фамилия</label>
+
+                        <input
+                            name="last_name"
+                            id="last_name"
+                            value="{{ form_data.last_name }}"
+                            class="{% if errors.last_name %}input-error{% endif %}"
+                            placeholder="Иванов"
+                        >
+
+                        <div class="field-rule">
+                            Обязательно. Минимум 2 символа.
+                        </div>
+
+                        {% if errors.last_name %}
+                            <div class="field-error">
+                                {{ errors.last_name }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="field">
+                        <label>Имя</label>
+
+                        <input
+                            name="first_name"
+                            id="first_name"
+                            value="{{ form_data.first_name }}"
+                            class="{% if errors.first_name %}input-error{% endif %}"
+                            placeholder="Иван"
+                        >
+
+                        <div class="field-rule">
+                            Обязательно. Минимум 2 символа.
+                        </div>
+
+                        {% if errors.first_name %}
+                            <div class="field-error">
+                                {{ errors.first_name }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="field">
+                    <label>Отчество</label>
+
+                    <input
+                        name="patronymic"
+                        value="{{ form_data.patronymic }}"
+                        class="{% if errors.patronymic %}input-error{% endif %}"
+                        placeholder="Иванович"
+                    >
+
+                    <div class="field-rule">
+                        Необязательно. Если заполняете — минимум 2 символа.
+                    </div>
+
+                    {% if errors.patronymic %}
+                        <div class="field-error">
+                            {{ errors.patronymic }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <label>Группа</label>
+
+                    <input
+                        name="group_name"
+                        id="group_name"
+                        value="{{ form_data.group_name }}"
+                        list="groups-list"
+                        class="{% if errors.group_name %}input-error{% endif %}"
+                        placeholder="Например: ИС-23"
+                    >
+
+                    <datalist id="groups-list">
+                        {% for group in groups %}
+                            <option value="{{ group.group_name }}">
+                        {% endfor %}
+                    </datalist>
+
+                    <div class="field-rule">
+                        Обязательно. Можно выбрать существующую группу или ввести новую.
+                    </div>
+
+                    {% if errors.group_name %}
+                        <div class="field-error">
+                            {{ errors.group_name }}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div id="teacher-fields">
+
+                <div class="field">
+                    <label>ФИО преподавателя</label>
+
+                    <input
+                        name="teacher_name"
+                        id="teacher_name"
+                        value="{{ form_data.teacher_name }}"
+                        class="{% if errors.teacher_name %}input-error{% endif %}"
+                        placeholder="Иванова Мария Сергеевна"
+                    >
+
+                    <div class="field-rule">
+                        Обязательно для преподавателя. Минимум 3 символа.
+                    </div>
+
+                    {% if errors.teacher_name %}
+                        <div class="field-error">
+                            {{ errors.teacher_name }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <label>Код преподавателя</label>
+
+                    <input
+                        type="password"
+                        name="teacher_code"
+                        id="teacher_code"
+                        value="{{ form_data.teacher_code }}"
+                        class="{% if errors.teacher_code %}input-error{% endif %}"
+                        placeholder="Код администратора"
+                    >
+
+                    <div class="field-rule">
+                        Обязательно. Нужен для получения прав администратора.
+                    </div>
+
+                    {% if errors.teacher_code %}
+                        <div class="field-error">
+                            {{ errors.teacher_code }}
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <button
+                class="btn btn-primary auth-button"
+            >
+                Создать аккаунт
+            </button>
+
+        </form>
+
+        <div class="auth-footer">
+            Уже зарегистрированы?
+
+            <a href="{{ url_for('login') }}">
+                Войти
+            </a>
+        </div>
+
+    </div>
+    </div>
+</div>
+
+<script>
+function toggleRoleFields() {
+    const selected = document.querySelector(
+        'input[name="role"]:checked'
+    );
+
+    const role = selected ? selected.value : "student";
+
+    const studentFields =
+        document.getElementById("student-fields");
+
+    const teacherFields =
+        document.getElementById("teacher-fields");
+
+    const roleCards =
+        document.querySelectorAll(".role-card");
+
+    roleCards.forEach(card => {
+        card.classList.remove("role-selected");
+    });
+
+    if (selected) {
+        selected.closest(".role-card")
+            .classList.add("role-selected");
+    }
+
+    if (role === "teacher") {
+        studentFields.style.display = "none";
+        teacherFields.style.display = "block";
+    } else {
+        studentFields.style.display = "block";
+        teacherFields.style.display = "none";
+    }
+}
+
+document.querySelectorAll(
+    'input[name="role"]'
+).forEach(input => {
+    input.addEventListener(
+        "change",
+        toggleRoleFields
+    );
+});
+
+toggleRoleFields();
+</script>
+{% endblock %}

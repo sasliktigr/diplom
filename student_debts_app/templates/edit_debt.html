@@ -1,0 +1,128 @@
+
+{% extends "base.html" %}
+{% block title %}Редактирование задолженности — EduControl Pro{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <div class="eyebrow">Edit Debt</div>
+        <h2>Редактирование задолженности</h2>
+        <p>
+            {{ debt.full_name }} · {{ debt.group_name }}
+        </p>
+    </div>
+</section>
+
+<div class="form-page">
+    <section class="panel">
+        <div class="panel-body">
+
+            <div class="assigned-teacher-box">
+                <span>Задолженность добавил</span>
+                <strong>
+                    {{ debt.teacher_name or 'Автор неизвестен (старая запись)' }}
+                </strong>
+                <small>
+                    Автор записи закреплён и не меняется при редактировании
+                </small>
+            </div>
+
+            <form method="POST">
+                <div class="field">
+                    <label>Предмет</label>
+                    <input
+                        name="subject_name"
+                        list="subjects-list"
+                        value="{{ debt.subject_name }}"
+                        required
+                    >
+
+                    <datalist id="subjects-list">
+                        {% for subject in subjects %}
+                            <option value="{{ subject.subject_name }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+
+                <div class="field">
+                    <label>Задание</label>
+                    <input
+                        name="assignment_name"
+                        value="{{ debt.assignment_name }}"
+                        required
+                    >
+                </div>
+
+                <div class="grid2">
+                    <div class="field">
+                        <label>Баллы</label>
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            name="score"
+                            value="{{ '' if debt.score is none else debt.score|num }}"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label>Максимум</label>
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="1"
+                            name="max_score"
+                            value="{{ '' if debt.max_score is none else debt.max_score|num }}"
+                        >
+                    </div>
+                </div>
+
+                <div class="grid2">
+                    <div class="field">
+                        <label>Дедлайн</label>
+                        <input
+                            type="date"
+                            name="repayment_deadline"
+                            value="{{ debt.repayment_deadline or '' }}"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label>Статус</label>
+                        <select name="status">
+                            {% for status in [
+                                'Не сдано',
+                                'На пересдаче',
+                                'Просрочено',
+                                'Сдано'
+                            ] %}
+                                <option
+                                    value="{{ status }}"
+                                    {% if debt.status == status %}selected{% endif %}
+                                >
+                                    {{ status }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Комментарий</label>
+                    <textarea name="comment">{{ debt.comment or '' }}</textarea>
+                </div>
+
+                <div class="inline">
+                    <button class="btn btn-primary">
+                        Сохранить изменения
+                    </button>
+
+                    <a class="btn btn-soft" href="{{ url_for('debts_page') }}">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,244 @@
+
+{% extends "base.html" %}
+{% block title %}Мой кабинет — EduControl Pro{% endblock %}
+
+{% block content %}
+
+<section class="student-home-hero">
+
+    <div class="student-home-main">
+
+        <div class="eyebrow">
+            Student Cabinet
+        </div>
+
+        <h2>
+            {{ student.full_name }}
+        </h2>
+
+        <p>
+            Группа:
+            <strong>
+                {{ student.group_name }}
+            </strong>
+        </p>
+
+    </div>
+
+    <div class="student-private-badge">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg> Только ваши данные
+    </div>
+
+</section>
+
+<section class="profile-stats">
+
+    <div class="profile-stat">
+        <span>
+            Всего работ
+        </span>
+
+        <b>
+            {{ stats.total }}
+        </b>
+    </div>
+
+    <div class="profile-stat">
+        <span>
+            Активных долгов
+        </span>
+
+        <b>
+            {{ stats.active }}
+        </b>
+    </div>
+
+    <div class="profile-stat">
+        <span>
+            Просрочено
+        </span>
+
+        <b>
+            {{ stats.overdue }}
+        </b>
+    </div>
+
+    <div class="profile-stat">
+        <span>
+            Закрыто
+        </span>
+
+        <b>
+            {{ stats.completed }}
+        </b>
+    </div>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-head">
+        <h3>
+            Мои задолженности
+        </h3>
+
+        <p>
+            Здесь отображаются только ваши собственные
+            учебные задания и результаты.
+        </p>
+    </div>
+
+    <div class="panel-body">
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>
+                            Добавил преподаватель
+                        </th>
+
+                        <th>
+                            Предмет
+                        </th>
+
+                        <th>
+                            Задание
+                        </th>
+
+                        <th>
+                            Дедлайн
+                        </th>
+
+                        <th>
+                            Баллы
+                        </th>
+
+                        <th>
+                            Статус
+                        </th>
+
+                        <th>
+                            Комментарий
+                        </th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for debt in debts %}
+
+                        <tr>
+
+                            <td>
+                                <span class="teacher-name-cell">
+                                    {{ debt.teacher_name or 'Автор неизвестен (старая запись)' }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{ debt.subject_name }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ debt.assignment_name }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ debt.repayment_deadline or '—' }}
+                            </td>
+
+                            <td>
+
+                                {% if debt.score is not none %}
+
+                                    {% if debt.max_score is not none %}
+
+                                        <span class="score">
+                                            {{ debt.score|num }}
+                                            /
+                                            {{ debt.max_score|num }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="score">
+                                            {{ debt.score|num }}
+                                        </span>
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    <span class="score none">
+                                        Без баллов
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if debt.status == 'Сдано' %}
+
+                                    <span class="badge green">
+                                        {{ debt.status }}
+                                    </span>
+
+                                {% elif debt.status == 'Просрочено' %}
+
+                                    <span class="badge violet">
+                                        {{ debt.status }}
+                                    </span>
+
+                                {% elif debt.status == 'На пересдаче' %}
+
+                                    <span class="badge amber">
+                                        {{ debt.status }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge red">
+                                        {{ debt.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ debt.comment or '—' }}
+                            </td>
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+                            <td
+                                colspan="7"
+                                class="empty"
+                            >
+                                У вас нет задолженностей
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

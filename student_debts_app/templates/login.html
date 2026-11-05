@@ -1,0 +1,79 @@
+
+{% extends "base.html" %}
+{% block title %}Вход — EduControl Pro{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page">
+
+    {% include "_auth_aside.html" %}
+
+    <div class="auth-main">
+    <div class="auth-card">
+
+        <div class="auth-brand">
+            <div class="logo auth-logo">
+                {% include "_logo.html" %}
+            </div>
+
+            <div>
+                <h1>Вход в систему</h1>
+                <p>
+                    EduControl Pro — контроль учебных задолженностей
+                </p>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+
+            <div class="field">
+                <label>Логин</label>
+
+                <input
+                    name="username"
+                    autocomplete="username"
+                    placeholder="Введите логин"
+                    required
+                >
+            </div>
+
+            <div class="field">
+                <label>Пароль</label>
+
+                <input
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    placeholder="Введите пароль"
+                    required
+                >
+            </div>
+
+            <button
+                class="btn btn-primary auth-button"
+            >
+                Войти
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Нет аккаунта?
+
+            <a href="{{ url_for('register') }}">
+                Зарегистрироваться
+            </a>
+        </div>
+
+    </div>
+    </div>
+</div>
+{% endblock %}

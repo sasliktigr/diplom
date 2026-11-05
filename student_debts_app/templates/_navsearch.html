@@ -1,0 +1,20 @@
+<div class="navsearch" id="navsearch" role="search">
+    <svg class="ico navsearch-ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+
+    <input
+        id="navsearch-input"
+        class="navsearch-input"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="{% if current_user.role == 'teacher' %}Перейти: раздел, студент, группа, предмет…{% else %}Перейти: раздел сайта…{% endif %}"
+        aria-label="Поиск по сайту"
+        aria-controls="navsearch-list"
+        aria-expanded="false"
+    >
+
+    <kbd class="navsearch-kbd" id="navsearch-kbd">/</kbd>
+
+    <div class="navsearch-list" id="navsearch-list" role="listbox" hidden></div>
+</div>
+<script src="{{ url_for('static', filename='navsearch.js') }}" defer></script>

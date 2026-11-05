@@ -1,0 +1,238 @@
+
+{% extends "base.html" %}
+{% block title %}Задолженности — EduControl Pro{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <div class="eyebrow">Debt Management</div>
+        <h2>Задолженности</h2>
+        <p>
+            Поиск, фильтрация, редактирование и управление всеми долгами.
+        </p>
+    </div>
+
+    <div class="hero-actions">
+        <a
+            class="btn btn-soft"
+            href="{{ url_for('export_csv',
+                search=filters.search,
+                group=filters.group,
+                status=filters.status,
+                subject=filters.subject
+            ) }}"
+        >
+            ⇩ Экспорт CSV
+        </a>
+
+        <a class="btn btn-primary" href="{{ url_for('new_debt') }}">
+            ＋ Добавить
+        </a>
+
+        <form
+            method="POST"
+            action="{{ url_for('clear_debts') }}"
+            onsubmit="return confirm('Очистить ВЕСЬ список задолженностей? Это действие нельзя отменить.')"
+        >
+            <button class="btn btn-danger">
+                Очистить список
+            </button>
+        </form>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-body">
+        <form class="filters" method="GET">
+            <input
+                name="search"
+                value="{{ filters.search }}"
+                placeholder="ФИО студента..."
+            >
+
+            <select name="group">
+                <option value="">Все группы</option>
+                {% for group in groups %}
+                    <option
+                        value="{{ group.group_name }}"
+                        {% if filters.group == group.group_name %}selected{% endif %}
+                    >
+                        {{ group.group_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="subject">
+                <option value="">Все предметы</option>
+                {% for subject in subjects %}
+                    <option
+                        value="{{ subject.subject_name }}"
+                        {% if filters.subject == subject.subject_name %}selected{% endif %}
+                    >
+                        {{ subject.subject_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="status">
+                <option value="">Все статусы</option>
+                {% for status in [
+                    'Не сдано',
+                    'На пересдаче',
+                    'Просрочено',
+                    'Сдано'
+                ] %}
+                    <option
+                        value="{{ status }}"
+                        {% if filters.status == status %}selected{% endif %}
+                    >
+                        {{ status }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button class="btn btn-dark">
+                Фильтр
+            </button>
+
+            <a class="btn btn-soft" href="{{ url_for('debts_page') }}">
+                Сбросить
+            </a>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Студент</th>
+                        <th>Добавил преподаватель</th>
+                        <th>Предмет</th>
+                        <th>Задание</th>
+                        <th>Дедлайн</th>
+                        <th>Баллы</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for debt in debts %}
+                    <tr>
+                        <td class="student">
+                            <a
+                                href="{{ url_for('student_profile', student_id=debt.student_id_real) }}"
+                            >
+                                {{ debt.full_name }}
+                            </a>
+                            <small>{{ debt.group_name }}</small>
+                        </td>
+
+                        <td>
+                            <span class="teacher-name-cell">
+                                {{ debt.teacher_name or 'Автор неизвестен (старая запись)' }}
+                            </span>
+                        </td>
+
+                        <td>{{ debt.subject_name }}</td>
+
+                        <td>
+                            <strong>{{ debt.assignment_name }}</strong>
+                            {% if debt.comment %}
+                                <div class="cell-sub">
+                                    {{ debt.comment }}
+                                </div>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ debt.repayment_deadline or '—' }}</td>
+
+                        <td>
+                            {% if debt.score is not none %}
+                                {% if debt.max_score is not none %}
+                                    <span class="score">
+                                        {{ debt.score|num }} / {{ debt.max_score|num }}
+                                    </span>
+                                {% else %}
+                                    <span class="score">{{ debt.score|num }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="score none">Без баллов</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if debt.status == 'Сдано' %}
+                                <span class="badge green">{{ debt.status }}</span>
+                            {% elif debt.status == 'Просрочено' %}
+                                <span class="badge violet">{{ debt.status }}</span>
+                            {% elif debt.status == 'На пересдаче' %}
+                                <span class="badge amber">{{ debt.status }}</span>
+                            {% else %}
+                                <span class="badge red">{{ debt.status }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="actions">
+                                <a
+                                    class="mini edit"
+                                    href="{{ url_for('edit_debt', debt_id=debt.id) }}"
+                                >
+                                    Изменить
+                                </a>
+
+                                {% if debt.status != 'Сдано' %}
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('change_status', debt_id=debt.id) }}"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="status"
+                                            value="Сдано"
+                                        >
+                                        <button class="mini done">
+                                            Сдано
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('change_status', debt_id=debt.id) }}"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="status"
+                                            value="Не сдано"
+                                        >
+                                        <button class="mini open">
+                                            Вернуть долг
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('delete_debt', debt_id=debt.id) }}"
+                                    onsubmit="return confirm('Удалить эту задолженность?')"
+                                >
+                                    <button class="mini delete">
+                                        Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="empty">
+                            Задолженности не найдены
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

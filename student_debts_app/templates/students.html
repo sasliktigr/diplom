@@ -1,0 +1,320 @@
+
+{% extends "base.html" %}
+{% block title %}Студенты — EduControl Pro{% endblock %}
+
+{% block content %}
+<section class="hero">
+
+    <div>
+        <div class="eyebrow">
+            Students
+        </div>
+
+        <h2>
+            Студенты по группам
+        </h2>
+
+        <p>
+            Студенты теперь отображаются отдельно
+            внутри каждой учебной группы.
+        </p>
+    </div>
+
+    <div class="hero-actions">
+
+        <form
+            method="POST"
+            action="{{ url_for('clear_students') }}"
+            onsubmit="
+                return confirm(
+                    'Очистить ВЕСЬ список студентов? ' +
+                    'Аккаунты студентов и их задолженности ' +
+                    'также будут удалены.'
+                )
+            "
+        >
+            <button class="btn btn-danger">
+                Очистить список
+            </button>
+        </form>
+
+    </div>
+</section>
+
+<div class="page-grid">
+
+    <section class="panel">
+
+        <div class="panel-head">
+            <h3>
+                Добавить студента
+            </h3>
+
+            <p>
+                Отчество не обязательно.
+            </p>
+        </div>
+
+        <div class="panel-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('add_student') }}"
+            >
+
+                <div class="grid2">
+
+                    <div class="field">
+                        <label>
+                            Фамилия
+                        </label>
+
+                        <input
+                            name="last_name"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label>
+                            Имя
+                        </label>
+
+                        <input
+                            name="first_name"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="field">
+                    <label>
+                        Отчество
+                    </label>
+
+                    <input
+                        name="patronymic"
+                        placeholder="Необязательно"
+                    >
+                </div>
+
+                <div class="field">
+                    <label>
+                        Группа
+                    </label>
+
+                    <input
+                        name="group_name"
+                        list="groups-list"
+                        required
+                    >
+
+                    <datalist id="groups-list">
+                        {% for group in groups %}
+                            <option
+                                value="{{ group.group_name }}"
+                            >
+                        {% endfor %}
+                    </datalist>
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    style="width:100%"
+                >
+                    Добавить студента
+                </button>
+
+            </form>
+
+        </div>
+    </section>
+
+    <section class="panel">
+
+        <div class="panel-head">
+            <h3>
+                Список студентов
+            </h3>
+
+            <p>
+                Поиск по имени, фамилии или отчеству.
+            </p>
+        </div>
+
+        <div class="panel-body">
+
+            <form
+                class="student-filters"
+                method="GET"
+            >
+
+                <input
+                    name="search"
+                    value="{{ filters.search }}"
+                    placeholder="Имя, фамилия или отчество..."
+                >
+
+                <select name="group">
+
+                    <option value="">
+                        Все группы
+                    </option>
+
+                    {% for group in groups %}
+
+                        <option
+                            value="{{ group.group_name }}"
+                            {% if filters.group == group.group_name %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ group.group_name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <button class="btn btn-dark">
+                    Поиск
+                </button>
+
+                <a
+                    class="btn btn-soft"
+                    href="{{ url_for('students_page') }}"
+                >
+                    Сбросить
+                </a>
+
+            </form>
+
+            <div class="grouped-students">
+
+                {% for block in grouped_students %}
+
+                    <section class="student-group-block">
+
+                        <div class="student-group-header">
+
+                            <div>
+                                <h4>
+                                    {{ block.group.group_name }}
+                                </h4>
+
+                                <span>
+                                    {{ block.students|length }}
+                                    студ.
+                                </span>
+                            </div>
+
+                            <div class="group-count-badge">
+                                Всего в группе:
+                                {{ block.group.student_count }}
+                            </div>
+
+                        </div>
+
+                        <div class="cards-list">
+
+                            {% for student in block.students %}
+
+                                <div class="entity-card">
+
+                                    <div>
+
+                                        <a
+                                            class="entity-title"
+                                            href="{{ url_for(
+                                                'student_profile',
+                                                student_id=student.id
+                                            ) }}"
+                                        >
+                                            {{ student.full_name }}
+                                        </a>
+
+                                        <div class="entity-meta">
+
+                                            Активных долгов:
+                                            {{ student.active_debt_count or 0 }}
+
+                                            ·
+
+                                            {% if student.account_id %}
+                                                <span class="account-ok">
+                                                    аккаунт:
+                                                    {{ student.account_username }}
+                                                </span>
+                                            {% else %}
+                                                <span class="account-none">
+                                                    аккаунт не создан
+                                                </span>
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="actions">
+
+                                        <a
+                                            class="mini open"
+                                            href="{{ url_for(
+                                                'student_profile',
+                                                student_id=student.id
+                                            ) }}"
+                                        >
+                                            Открыть
+                                        </a>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'delete_student',
+                                                student_id=student.id
+                                            ) }}"
+                                            onsubmit="
+                                                return confirm(
+                                                    'Удалить студента, ' +
+                                                    'его аккаунт и задолженности?'
+                                                )
+                                            "
+                                        >
+                                            <button
+                                                class="mini delete"
+                                            >
+                                                Удалить
+                                            </button>
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            {% else %}
+
+                                <div class="empty">
+                                    В этой группе ничего не найдено
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+                {% else %}
+
+                    <div class="empty">
+                        Студенты не найдены
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+    </section>
+</div>
+{% endblock %}

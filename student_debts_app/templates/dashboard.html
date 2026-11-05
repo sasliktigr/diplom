@@ -1,0 +1,173 @@
+
+{% extends "base.html" %}
+{% block title %}Обзор — EduControl Pro{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <div class="eyebrow">Polytech College Almaty</div>
+        <h2>Панель управления</h2>
+        <p>
+            Быстрый обзор студентов, задолженностей и состояния учебного процесса.
+        </p>
+    </div>
+
+    <div class="hero-actions">
+        <a class="btn btn-soft" href="{{ url_for('backup_database') }}">
+            ⤓ Резервная копия
+        </a>
+
+        <a class="btn btn-primary" href="{{ url_for('new_debt') }}">
+            ＋ Новый долг
+        </a>
+    </div>
+</section>
+
+<section class="kpis">
+    <div class="kpi ">
+        <div class="kpi-ico"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
+        <span>Студентов</span>
+        <b>{{ counts.students }}</b>
+    </div>
+    <div class="kpi k-brass">
+        <div class="kpi-ico"><svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.3c2 .8 3.5 2.6 3.5 5.7"/></svg></div>
+        <span>Групп</span>
+        <b>{{ counts.groups }}</b>
+    </div>
+    <div class="kpi ">
+        <div class="kpi-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H20v14H5.5A1.5 1.5 0 004 19.5z"/><path d="M4 19.5A1.5 1.5 0 005.5 21H20v-3"/></svg></div>
+        <span>Предметов</span>
+        <b>{{ counts.subjects }}</b>
+    </div>
+    <div class="kpi k-red">
+        <div class="kpi-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 13h6"/></svg></div>
+        <span>Активных долгов</span>
+        <b>{{ counts.active }}</b>
+    </div>
+    <div class="kpi k-violet">
+        <div class="kpi-ico"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <span>Просрочено</span>
+        <b>{{ counts.overdue }}</b>
+    </div>
+    <div class="kpi k-green">
+        <div class="kpi-ico"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg></div>
+        <span>Закрыто</span>
+        <b>{{ counts.completed }}</b>
+    </div>
+</section>
+
+<div class="progress-card">
+    <div class="progress-head">
+        <span>Прогресс закрытия задолженностей</span>
+        <strong>{{ completion_rate }}%</strong>
+    </div>
+
+    <div class="progress">
+        <div style="width:{{ completion_rate }}%"></div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <section class="panel">
+        <div class="panel-head">
+            <h3>Последние задолженности</h3>
+            <p>Последние добавленные записи.</p>
+        </div>
+
+        <div class="panel-body">
+            <div class="table-wrap">
+                <table class="compact-table">
+                    <thead>
+                        <tr>
+                            <th>Студент</th>
+                            <th>Предмет</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for debt in recent_debts %}
+                        <tr>
+                            <td>
+                                <a
+                                    class="table-link"
+                                    href="{{ url_for('student_profile', student_id=debt.student_id) }}"
+                                >
+                                    {{ debt.full_name }}
+                                </a>
+                                <small class="cell-sub">
+                                    {{ debt.group_name }}
+                                </small>
+                            </td>
+
+                            <td>
+                                {{ debt.subject_name }}
+                                <small class="cell-sub">
+                                    {{ debt.assignment_name }}
+                                </small>
+                                <small class="cell-sub">
+                                    Добавил:
+                                    {{ debt.teacher_name or 'Автор неизвестен' }}
+                                </small>
+                            </td>
+
+                            <td>
+                                {% if debt.status == 'Сдано' %}
+                                    <span class="badge green">{{ debt.status }}</span>
+                                {% elif debt.status == 'Просрочено' %}
+                                    <span class="badge violet">{{ debt.status }}</span>
+                                {% elif debt.status == 'На пересдаче' %}
+                                    <span class="badge amber">{{ debt.status }}</span>
+                                {% else %}
+                                    <span class="badge red">{{ debt.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="empty">
+                                Пока нет задолженностей
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top:12px">
+                <a class="btn btn-soft" href="{{ url_for('debts_page') }}">
+                    Открыть все задолженности →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <h3>Активные долги по группам</h3>
+            <p>Группы с наибольшим количеством открытых задолженностей.</p>
+        </div>
+
+        <div class="panel-body">
+            <div class="metric-list">
+                {% for group in top_groups %}
+                    <div class="metric-row">
+                        <span>{{ group.group_name }}</span>
+                        <strong>{{ group.debt_count }}</strong>
+                    </div>
+                {% else %}
+                    <div class="empty">
+                        Данных пока нет
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top:12px">
+                <a class="btn btn-soft" href="{{ url_for('groups_page') }}">
+                    Открыть группы →
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

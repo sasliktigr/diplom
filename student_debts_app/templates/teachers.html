@@ -1,0 +1,135 @@
+
+{% extends "base.html" %}
+{% block title %}Преподаватели — EduControl Pro{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div>
+        <div class="eyebrow">
+            Teachers
+        </div>
+
+        <h2>
+            Преподаватели
+        </h2>
+
+        <p>
+            Список преподавателей, зарегистрированных в системе.
+        </p>
+    </div>
+
+</section>
+
+<section class="panel">
+
+    <div class="panel-head">
+
+        <h3>
+            Список преподавателей
+        </h3>
+
+        <p>
+            Нажмите на преподавателя, чтобы увидеть добавленные им задолженности.
+        </p>
+
+    </div>
+
+    <div class="panel-body">
+
+        <form
+            method="GET"
+            class="teacher-search"
+        >
+
+            <input
+                name="search"
+                value="{{ search }}"
+                placeholder="Найти преподавателя по имени..."
+            >
+
+            <button class="btn btn-dark">
+                Найти
+            </button>
+
+            {% if search %}
+
+                <a
+                    class="btn btn-soft"
+                    href="{{ url_for('teachers_page') }}"
+                >
+                    Сбросить
+                </a>
+
+            {% endif %}
+
+        </form>
+
+        <div class="teacher-grid">
+
+            {% for teacher in teachers %}
+
+                <a class="teacher-card teacher-link" href="{{ url_for('teacher_debts', teacher_id=teacher.id) }}">
+
+                    <div class="teacher-avatar">
+                        {{ teacher.display_name[:1]|upper }}
+                    </div>
+
+                    <div class="teacher-info">
+
+                        <strong>
+                            {{ teacher.display_name }}
+                        </strong>
+
+                        <span>
+                            Преподаватель
+                        </span>
+
+                        <em class="teacher-open">
+                            {% if current_user.role == 'student' %}
+                                Мои долги от преподавателя →
+                            {% else %}
+                                Показать добавленные долги →
+                            {% endif %}
+                        </em>
+
+                        {% if current_user.role == 'teacher' %}
+
+                            <small>
+                                Логин:
+                                {{ teacher.username }}
+                            </small>
+
+                        {% endif %}
+
+                    </div>
+
+                    {% if current_user.role == 'teacher' %}
+
+                        <div class="teacher-stat">
+                            {{ teacher.debt_count }}
+                            <small>
+                                долгов создано
+                            </small>
+                        </div>
+
+                    {% endif %}
+
+                </a>
+
+            {% else %}
+
+                <div class="empty">
+                    Преподаватели не найдены
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

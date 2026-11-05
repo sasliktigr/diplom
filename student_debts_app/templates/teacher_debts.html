@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}{{ teacher.display_name }} — долги — EduControl Pro{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div>
+        <div class="eyebrow">Преподаватель</div>
+
+        <h2>{{ teacher.display_name }}</h2>
+
+        <p>
+            {% if current_user.role == 'student' %}
+                Задолженности, которые этот преподаватель добавил именно вам.
+            {% else %}
+                Все задолженности, добавленные этим преподавателем.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="hero-actions">
+        <a class="btn btn-soft" href="{{ url_for('teachers_page') }}">
+            ← Все преподаватели
+        </a>
+    </div>
+</section>
+
+<section class="profile-stats">
+    <div class="profile-stat"><span>Всего работ</span><b>{{ stats.total }}</b></div>
+    <div class="profile-stat"><span>Активных долгов</span><b>{{ stats.active }}</b></div>
+    <div class="profile-stat"><span>Просрочено</span><b>{{ stats.overdue }}</b></div>
+    <div class="profile-stat"><span>Закрыто</span><b>{{ stats.completed }}</b></div>
+</section>
+
+<section class="panel">
+
+    <div class="panel-head">
+        <h3>
+            {% if current_user.role == 'student' %}
+                Мои задолженности от {{ teacher.display_name }}
+            {% else %}
+                Задолженности, добавленные преподавателем
+            {% endif %}
+        </h3>
+    </div>
+
+    <div class="panel-body">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        {% if current_user.role == 'teacher' %}
+                            <th>Студент</th>
+                            <th>Группа</th>
+                        {% endif %}
+                        <th>Предмет</th>
+                        <th>Задание</th>
+                        <th>Дедлайн</th>
+                        <th>Баллы</th>
+                        <th>Статус</th>
+                        <th>Комментарий</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for debt in debts %}
+                        <tr>
+                            {% if current_user.role == 'teacher' %}
+                                <td>
+                                    <a href="{{ url_for('student_profile', student_id=debt.student_id_real) }}">
+                                        <strong>{{ debt.full_name }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ debt.group_name }}</td>
+                            {% endif %}
+
+                            <td>{{ debt.subject_name }}</td>
+
+                            <td><strong>{{ debt.assignment_name }}</strong></td>
+
+                            <td>{{ debt.repayment_deadline or '—' }}</td>
+
+                            <td>
+                                {% if debt.score is not none %}
+                                    {% if debt.max_score is not none %}
+                                        <span class="score">{{ debt.score|num }} / {{ debt.max_score|num }}</span>
+                                    {% else %}
+                                        <span class="score">{{ debt.score|num }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="score none">Без баллов</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if debt.status == 'Сдано' %}
+                                    <span class="badge green">{{ debt.status }}</span>
+                                {% elif debt.status == 'Просрочено' %}
+                                    <span class="badge violet">{{ debt.status }}</span>
+                                {% elif debt.status == 'На пересдаче' %}
+                                    <span class="badge amber">{{ debt.status }}</span>
+                                {% else %}
+                                    <span class="badge red">{{ debt.status }}</span>
+                                {% endif %}
+                            </td>
+
+                            <td>{{ debt.comment or '—' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="{% if current_user.role == 'teacher' %}8{% else %}6{% endif %}" class="empty">
+                                {% if current_user.role == 'student' %}
+                                    Этот преподаватель не добавлял вам задолженностей
+                                {% else %}
+                                    Этот преподаватель ещё не добавлял задолженностей
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}

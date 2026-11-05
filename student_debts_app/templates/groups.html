@@ -1,0 +1,92 @@
+
+{% extends "base.html" %}
+{% block title %}Группы — EduControl Pro{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <div class="eyebrow">Groups</div>
+        <h2>Учебные группы</h2>
+        <p>
+            Управление группами и контроль количества студентов и задолженностей.
+        </p>
+    </div>
+
+    <div class="hero-actions">
+        <form
+            method="POST"
+            action="{{ url_for('clear_groups') }}"
+            onsubmit="return confirm('Очистить ВЕСЬ список групп? Студенты и их задолженности также будут удалены.')"
+        >
+            <button class="btn btn-danger">
+                Очистить список
+            </button>
+        </form>
+    </div>
+</section>
+
+<div class="page-grid">
+    <section class="panel">
+        <div class="panel-head">
+            <h3>Добавить группу</h3>
+            <p>Создайте новую учебную группу.</p>
+        </div>
+
+        <div class="panel-body">
+            <form method="POST" action="{{ url_for('add_group') }}">
+                <div class="field">
+                    <label>Название группы</label>
+                    <input
+                        name="group_name"
+                        placeholder="Например: ИС-24"
+                        required
+                    >
+                </div>
+
+                <button class="btn btn-primary" style="width:100%">
+                    Добавить группу
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <h3>Список групп</h3>
+            <p>Студенты и активные задолженности по каждой группе.</p>
+        </div>
+
+        <div class="panel-body">
+            <div class="cards-list">
+                {% for group in groups %}
+                    <div class="entity-card">
+                        <div>
+                            <div class="entity-title">
+                                {{ group.group_name }}
+                            </div>
+
+                            <div class="entity-meta">
+                                студентов: {{ group.student_count }} ·
+                                активных долгов:
+                                {{ group.active_debt_count or 0 }}
+                            </div>
+                        </div>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('delete_group', group_id=group.id) }}"
+                            onsubmit="return confirm('Удалить группу и связанных студентов?')"
+                        >
+                            <button class="mini delete">
+                                Удалить
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="empty">Групп пока нет</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
